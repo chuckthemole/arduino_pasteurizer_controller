@@ -25,8 +25,8 @@ float COOL_RATE = 0.25;
 unsigned long lastSimTime = 0;
 unsigned long lastSendTime = 0;
 
-const char* ssid = "";      // <-- exact name of your 2.4 GHz WiFi
-const char* password = ""; // pass
+const char* ssid = WIFI_SSID;      // <-- exact name of your 2.4 GHz WiFi
+const char* password = WIFI_PASS; // pass
 
 // === Read temperature from analog (mock conversion for now) ===
 float analogToTemp(int analogValue) {
