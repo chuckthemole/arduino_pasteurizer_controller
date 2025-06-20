@@ -100,13 +100,18 @@ void setup() {
 void loop() {
     unsigned long now = millis();
 
-    Serial.print("[Arduino] Mode: ");
-    Serial.print(mode);
-    Serial.print(" | T_core: ");
-    Serial.print(T_core);
-    Serial.print(" | T_water: ");
-    Serial.println(T_water);
+    // Serial.print("[Arduino] Mode: ");
+    // Serial.print(mode);
+    // Serial.print(" | T_core: ");
+    // Serial.print(T_core);
+    // Serial.print(" | T_water: ");
+    // Serial.println(T_water);
 
+    // === Send only structured data for parsing:
+    // String payload = "T_CORE:" + String(T_core, 1) +
+    //                 ",T_WATER:" + String(T_water, 1) +
+    //                 ",MODE:" + mode + "\n";
+    // Serial.print(payload);
 
     // Accept new WiFi client (only in WiFi mode)
 #if SIM_MODE_WIFI
