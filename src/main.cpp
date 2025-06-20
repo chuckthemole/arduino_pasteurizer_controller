@@ -42,19 +42,21 @@ float analogToTemp(int analogValue) {
 
 // === Simulate Temperature ===
 void simulateTemperatures() {
+    float ambient = 25.0;
+
     if (mode == "HEAT") {
+        T_core += HEAT_RATE * 0.6;
         T_water += HEAT_RATE;
-        if (T_water > T_core) {
-            T_core += HEAT_RATE * 0.9;
-        }
     } else if (mode == "COOL") {
+        T_core -= COOL_RATE * 0.6;
         T_water -= COOL_RATE;
-        if (T_water < T_core) {
-            T_core -= COOL_RATE * 0.8;
-        }
+    } else {
+        // Natural equalization towards ambient
+        T_core += (ambient - T_core) * 0.01;
+        T_water += (ambient - T_water) * 0.01;
     }
 
-    // Clamp within 0-100°C
+    // Clamp within realistic range
     T_core = constrain(T_core, 0, 100);
     T_water = constrain(T_water, 0, 100);
 }
@@ -98,6 +100,14 @@ void setup() {
 void loop() {
     unsigned long now = millis();
 
+    Serial.print("[Arduino] Mode: ");
+    Serial.print(mode);
+    Serial.print(" | T_core: ");
+    Serial.print(T_core);
+    Serial.print(" | T_water: ");
+    Serial.println(T_water);
+
+
     // Accept new WiFi client (only in WiFi mode)
 #if SIM_MODE_WIFI
     if (!client || !client.connected()) {
@@ -135,7 +145,8 @@ void loop() {
     }
 
     // Read commands (from client or Serial)
-    String command;
+    String command = "";
+
 #if SIM_MODE_WIFI
     if (client && client.available()) {
         command = client.readStringUntil('\n');
