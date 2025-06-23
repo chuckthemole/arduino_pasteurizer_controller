@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <WiFiNINA.h>
+#include <WiFi.h>
 #include <SPI.h>
 #include "config.h"
 
@@ -72,17 +72,13 @@ void setup() {
     Serial.print("[Arduino] Connecting to WiFi: ");
     Serial.println(ssid);
     
-    int attempts = 0;
-    int status = WiFi.begin(ssid, password);
+    WiFi.begin(ssid, password);
     
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+        delay(500);
         Serial.print(".");
         attempts++;
-        if (attempts > 10) {
-            Serial.println("\n[Arduino] Failed to connect after 10 attempts.");
-            break;
-        }
     }
 
     if (WiFi.status() == WL_CONNECTED) {
@@ -91,6 +87,10 @@ void setup() {
         Serial.println(WiFi.localIP());
         server.begin();
         Serial.println("[Arduino] Server started.");
+    } else {
+        Serial.println("\n[Arduino] Failed to connect to WiFi.");
+        Serial.print("[Arduino] Status: ");
+        Serial.println(WiFi.status());
     }
 #else
     Serial.println("[Arduino] USB simulation mode - skipping WiFi setup.");
