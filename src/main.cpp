@@ -72,30 +72,20 @@ void setup() {
     Serial.print("[Arduino] Connecting to WiFi: ");
     Serial.println(ssid);
     
-    // Initialize WiFi module
-    if (WiFi.status() == 255) {
-        Serial.println("[Arduino] Communication with WiFi module failed!");
-        while (true);
-    }
-    
-    // Check firmware version
-    String fv = WiFi.firmwareVersion();
-    Serial.print("[Arduino] Firmware version: ");
-    Serial.println(fv);
-    
-    // Begin connection with proper initialization
-    WiFi.disconnect();
-    delay(1000);
-    
     int status = WiFi.begin((char*)ssid, (char*)password);
     Serial.print("[Arduino] Initial connection status: ");
     Serial.println(status);
     
     int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+    while (WiFi.status() != WL_CONNECTED && attempts < 10) {
         delay(1000);
-        Serial.print(".");
+        Serial.print("\nStatus: ");
         Serial.print(WiFi.status());
+        
+        // // Check firmware version
+        String fv = WiFi.firmwareVersion();
+        Serial.print("\n[Arduino] Firmware version: ");
+        Serial.println(fv);
         attempts++;
     }
 
