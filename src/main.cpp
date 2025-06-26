@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <WiFi.h>
+#include <WiFiS3.h>
 #include <SPI.h>
 #include "config.h"
 
@@ -29,7 +29,7 @@ unsigned long lastSendTime = 0;
 // === WiFi Setup ===
 WiFiServer server(12345);
 WiFiClient client;
-const char* ssid = WIFI_SSID;
+char* ssid = WIFI_SSID;
 const char* password = WIFI_PASS;
 
 // === WiFi Status Helper ===
@@ -107,12 +107,12 @@ void setup() {
 
 #if SIM_MODE_WIFI
     // Check if WiFi hardware is available
-    if (WiFi.status() == WL_NO_MODULE) {
-        Serial.println("[Arduino] WiFi module not detected!");
-        while (true) {
-            delay(1000);
-        }
-    }
+    // if (WiFi.status() == WL_NO_MODULE) {
+    //     Serial.println("[Arduino] WiFi module not detected!");
+    //     while (true) {
+    //         delay(1000);
+    //     }
+    // }
     
     // Print firmware version before connecting
     String fv = WiFi.firmwareVersion();
@@ -163,8 +163,8 @@ void setup() {
         Serial.println(WiFi.gatewayIP());
         Serial.print("[Arduino] Subnet: ");
         Serial.println(WiFi.subnetMask());
-        Serial.print("[Arduino] DNS: ");
-        Serial.println(WiFi.dnsIP());
+        // Serial.print("[Arduino] DNS: ");
+        // Serial.println(WiFi.dnsIP());
         
         server.begin();
         Serial.println("[Arduino] Server started on port 12345");
