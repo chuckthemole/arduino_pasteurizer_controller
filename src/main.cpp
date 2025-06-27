@@ -26,7 +26,8 @@ unsigned long lastSimTime = 0;
 unsigned long lastSendTime = 0;
 
 // === WiFi Setup ===
-WiFiServer server(12345);
+const unsigned int PORT = 12345;
+WiFiServer server(PORT);
 WiFiClient client;
 char *ssid = WIFI_SSID;
 const char *password = WIFI_PASS;
@@ -118,10 +119,10 @@ void setup()
     if (USE_WIFI)
     {
         // Print configuration for debugging
-        Serial.print("[Arduino] SSID: ");
-        Serial.println(ssid);
-        Serial.print("[Arduino] Password length: ");
-        Serial.println(strlen(password));
+        // Serial.print("[Arduino] SSID: ");
+        // Serial.println(ssid);
+        // Serial.print("[Arduino] Password length: ");
+        // Serial.println(strlen(password));
 
         // Print firmware version before connecting
         String fv = WiFi.firmwareVersion();
@@ -219,10 +220,10 @@ void setup()
                 if (ip != IPAddress(0, 0, 0, 0))
                 {
                     server.begin();
-                    Serial.println("[Arduino] Server started on port 12345");
+                    Serial.println("[Arduino] Server started on port " + PORT);
                     Serial.print("[Arduino] Connect to: ");
                     Serial.print(ip);
-                    Serial.println(":12345");
+                    Serial.println(":" + PORT);
                 }
                 else
                 {
