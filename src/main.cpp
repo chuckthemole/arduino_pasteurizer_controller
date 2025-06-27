@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <WiFiS3.h>
+#include <WiFiUdp.h>
 #include <SPI.h>
 #include "config.h"
 
@@ -9,6 +10,9 @@
 //   #define USE_WIFI true/false
 //   #define WIFI_SSID "your_ssid"
 //   #define WIFI_PASS "your_password"
+
+WiFiUDP udp;
+const unsigned int PORT_UDP = 8888;
 
 // === Hardware Pins (for real sensor mode) ===
 const int CORE_TEMP_PIN = A0;
@@ -226,6 +230,8 @@ void setup()
                     Serial.print(ip);
                     Serial.print(":");
                     Serial.println(PORT);
+
+                    udp.begin(PORT_UDP); // Port for broadcast
                 }
                 else
                 {
@@ -295,6 +301,18 @@ void loop()
                 Serial.print("[Arduino] Sent (initial): ");
                 Serial.println(initialPayload);
             }
+        }
+
+        // periodically send a broadcast
+        static unsigned long lastBroadcast = 0;
+        if (now - lastBroadcast > 5000)
+        { // Every 5 seconds
+            IPAddress broadcastIp = ~WiFi.subnetMask() | WiFi.localIP();
+            udp.beginPacket(broadcastIp, 8888);
+            udp.print("ARDUINO_ID=1;IP=");
+            udp.print(WiFi.localIP());
+            udp.endPacket();
+            lastBroadcast = now;
         }
     }
 
