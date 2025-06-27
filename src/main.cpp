@@ -28,42 +28,68 @@ unsigned long lastSendTime = 0;
 // === WiFi Setup ===
 WiFiServer server(12345);
 WiFiClient client;
-char* ssid = WIFI_SSID;
-const char* password = WIFI_PASS;
+char *ssid = WIFI_SSID;
+const char *password = WIFI_PASS;
 
 // === WiFi Status Helper ===
-void printWiFiStatus() {
-    switch (WiFi.status()) {
-        case WL_IDLE_STATUS: Serial.println("WL_IDLE_STATUS"); break;
-        case WL_NO_SSID_AVAIL: Serial.println("WL_NO_SSID_AVAIL - Network not found"); break;
-        case WL_SCAN_COMPLETED: Serial.println("WL_SCAN_COMPLETED"); break;
-        case WL_CONNECTED: Serial.println("WL_CONNECTED"); break;
-        case WL_CONNECT_FAILED: Serial.println("WL_CONNECT_FAILED - Wrong password or connection issue"); break;
-        case WL_CONNECTION_LOST: Serial.println("WL_CONNECTION_LOST"); break;
-        case WL_DISCONNECTED: Serial.println("WL_DISCONNECTED"); break;
-        default: Serial.print("Unknown status: "); Serial.println(WiFi.status()); break;
+void printWiFiStatus()
+{
+    switch (WiFi.status())
+    {
+    case WL_IDLE_STATUS:
+        Serial.println("WL_IDLE_STATUS");
+        break;
+    case WL_NO_SSID_AVAIL:
+        Serial.println("WL_NO_SSID_AVAIL - Network not found");
+        break;
+    case WL_SCAN_COMPLETED:
+        Serial.println("WL_SCAN_COMPLETED");
+        break;
+    case WL_CONNECTED:
+        Serial.println("WL_CONNECTED");
+        break;
+    case WL_CONNECT_FAILED:
+        Serial.println("WL_CONNECT_FAILED - Wrong password or connection issue");
+        break;
+    case WL_CONNECTION_LOST:
+        Serial.println("WL_CONNECTION_LOST");
+        break;
+    case WL_DISCONNECTED:
+        Serial.println("WL_DISCONNECTED");
+        break;
+    default:
+        Serial.print("Unknown status: ");
+        Serial.println(WiFi.status());
+        break;
     }
 }
 
 // === Analog Sensor to Temperature ===
 // Replace with real sensor's formula if using sensors
-float analogToTemp(int analogValue) {
+float analogToTemp(int analogValue)
+{
     float voltage = analogValue * (5.0 / 1023.0);
     float temperature = (voltage - 0.5) * 100.0; // TMP36-style conversion
     return temperature;
 }
 
 // === Simulate Temperature ===
-void simulateTemperatures() {
+void simulateTemperatures()
+{
     float ambient = 25.0;
 
-    if (mode == "HEAT") {
+    if (mode == "HEAT")
+    {
         T_core += HEAT_RATE * 0.6;
         T_water += HEAT_RATE;
-    } else if (mode == "COOL") {
+    }
+    else if (mode == "COOL")
+    {
         T_core -= COOL_RATE * 0.6;
         T_water -= COOL_RATE;
-    } else {
+    }
+    else
+    {
         // Natural equalization towards ambient
         T_core += (ambient - T_core) * 0.01;
         T_water += (ambient - T_water) * 0.01;
@@ -74,9 +100,11 @@ void simulateTemperatures() {
     T_water = constrain(T_water, 0, 100);
 }
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
-    while (!Serial) {
+    while (!Serial)
+    {
         delay(100);
     }
     Serial.println("[Arduino] Boot complete");
@@ -87,7 +115,8 @@ void setup() {
     Serial.print("[Arduino] Communication: ");
     Serial.println(USE_WIFI ? "WiFi" : "USB Serial");
 
-    if (USE_WIFI) {
+    if (USE_WIFI)
+    {
         // Print configuration for debugging
         Serial.print("[Arduino] SSID: ");
         Serial.println(ssid);
@@ -106,7 +135,8 @@ void setup() {
         Serial.print(numSsid);
         Serial.println(" networks:");
 
-        for (int i = 0; i < numSsid; i++) {
+        for (int i = 0; i < numSsid; i++)
+        {
             Serial.print("  ");
             Serial.print(i);
             Serial.print(": ");
@@ -123,7 +153,8 @@ void setup() {
         WiFi.begin(ssid, password);
 
         int attempts = 0;
-        while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+        while (WiFi.status() != WL_CONNECTED && attempts < 20)
+        {
             delay(1000);
             Serial.print(".");
             Serial.print(" Status: ");
@@ -132,7 +163,8 @@ void setup() {
         }
         Serial.println();
 
-        if (WiFi.status() == WL_CONNECTED) {
+        if (WiFi.status() == WL_CONNECTED)
+        {
             delay(5000); // Wait for DHCP
 
             // Force reconnect to ensure fresh IP
@@ -141,19 +173,22 @@ void setup() {
             WiFi.begin(ssid, password);
 
             int reconnectAttempts = 0;
-            while (WiFi.status() != WL_CONNECTED && reconnectAttempts < 15) {
+            while (WiFi.status() != WL_CONNECTED && reconnectAttempts < 15)
+            {
                 delay(1000);
                 Serial.print("*");
                 reconnectAttempts++;
             }
 
-            if (WiFi.status() == WL_CONNECTED) {
+            if (WiFi.status() == WL_CONNECTED)
+            {
                 delay(3000);
                 IPAddress ip = WiFi.localIP();
                 IPAddress gateway = WiFi.gatewayIP();
                 IPAddress subnet = WiFi.subnetMask();
 
-                if (ip == IPAddress(0, 0, 0, 0)) {
+                if (ip == IPAddress(0, 0, 0, 0))
+                {
                     Serial.println("[Arduino] WARNING: Still getting 0.0.0.0 - trying DHCP refresh...");
                     WiFi.disconnect();
                     delay(2000);
@@ -161,7 +196,8 @@ void setup() {
                     WiFi.begin(ssid, password);
 
                     int dhcpAttempts = 0;
-                    while (WiFi.status() != WL_CONNECTED && dhcpAttempts < 20) {
+                    while (WiFi.status() != WL_CONNECTED && dhcpAttempts < 20)
+                    {
                         delay(1000);
                         Serial.print("#");
                         dhcpAttempts++;
@@ -180,19 +216,26 @@ void setup() {
                 Serial.print("[Arduino] Subnet: ");
                 Serial.println(subnet);
 
-                if (ip != IPAddress(0, 0, 0, 0)) {
+                if (ip != IPAddress(0, 0, 0, 0))
+                {
                     server.begin();
                     Serial.println("[Arduino] Server started on port 12345");
                     Serial.print("[Arduino] Connect to: ");
                     Serial.print(ip);
                     Serial.println(":12345");
-                } else {
+                }
+                else
+                {
                     Serial.println("[Arduino] ERROR: Failed to get valid IP address");
                 }
-            } else {
+            }
+            else
+            {
                 Serial.println("[Arduino] Reconnection failed!");
             }
-        } else {
+        }
+        else
+        {
             Serial.println("[Arduino] Failed to connect to WiFi!");
             printWiFiStatus();
 
@@ -203,19 +246,25 @@ void setup() {
             Serial.println("4. Try moving closer to router");
             Serial.println("5. Check if MAC filtering is enabled");
         }
-    } else {
+    }
+    else
+    {
         Serial.println("[Arduino] USB communication - skipping WiFi setup.");
     }
 }
 
-void loop() {
+void loop()
+{
     unsigned long now = millis();
 
     // Periodic WiFi connection check
-    if (USE_WIFI) {
+    if (USE_WIFI)
+    {
         static unsigned long lastStatusCheck = 0;
-        if (now - lastStatusCheck > 30000) {
-            if (WiFi.status() != WL_CONNECTED) {
+        if (now - lastStatusCheck > 30000)
+        {
+            if (WiFi.status() != WL_CONNECTED)
+            {
                 Serial.println("[Arduino] WiFi connection lost!");
                 printWiFiStatus();
 
@@ -227,19 +276,34 @@ void loop() {
             lastStatusCheck = now;
         }
 
-        if (!client || !client.connected()) {
+        if (!client || !client.connected())
+        {
             client = server.available();
-            if (client) {
+            if (client)
+            {
                 Serial.println("[Arduino] New client connected");
+                delay(500);
+
+                // Send one payload right away
+                String initialPayload = "T_CORE:" + String(T_core, 1) +
+                                        ",T_WATER:" + String(T_water, 1) +
+                                        ",MODE:" + mode + "\n";
+                client.print(initialPayload);
+                Serial.print("[Arduino] Sent (initial): ");
+                Serial.println(initialPayload);
             }
         }
     }
 
     // Update temperatures
-    if (now - lastSimTime > 1000) {
-        if (IS_SIMULATION) {
+    if (now - lastSimTime > 1000)
+    {
+        if (IS_SIMULATION)
+        {
             simulateTemperatures();
-        } else {
+        }
+        else
+        {
             T_core = analogToTemp(analogRead(CORE_TEMP_PIN));
             T_water = analogToTemp(analogRead(WATER_TEMP_PIN));
         }
@@ -247,13 +311,16 @@ void loop() {
     }
 
     // Send data
-    if (now - lastSendTime > 1000) {
+    if (now - lastSendTime > 1000)
+    {
         String payload = "T_CORE:" + String(T_core, 1) +
                          ",T_WATER:" + String(T_water, 1) +
                          ",MODE:" + mode + "\n";
 
-        if (USE_WIFI) {
-            if (client && client.connected()) {
+        if (USE_WIFI)
+        {
+            if (client && client.connected())
+            {
                 client.print(payload);
             }
         }
@@ -267,22 +334,31 @@ void loop() {
     // Read commands
     String command = "";
 
-    if (USE_WIFI && client && client.available()) {
+    if (USE_WIFI && client && client.available())
+    {
         command = client.readStringUntil('\n');
-    } else if (!USE_WIFI && Serial.available()) {
+    }
+    else if (!USE_WIFI && Serial.available())
+    {
         command = Serial.readStringUntil('\n');
     }
 
-    if (command.length() > 0) {
+    if (command.length() > 0)
+    {
         command.trim();
         Serial.print("[Arduino] Received command: ");
         Serial.println(command);
 
-        if (command.equalsIgnoreCase("heat")) {
+        if (command.equalsIgnoreCase("heat"))
+        {
             mode = "HEAT";
-        } else if (command.equalsIgnoreCase("cool")) {
+        }
+        else if (command.equalsIgnoreCase("cool"))
+        {
             mode = "COOL";
-        } else if (command.equalsIgnoreCase("stop")) {
+        }
+        else if (command.equalsIgnoreCase("stop"))
+        {
             mode = "IDLE";
         }
     }
