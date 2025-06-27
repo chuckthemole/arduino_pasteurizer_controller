@@ -220,10 +220,12 @@ void setup()
                 if (ip != IPAddress(0, 0, 0, 0))
                 {
                     server.begin();
-                    Serial.println("[Arduino] Server started on port " + PORT);
+                    Serial.print("[Arduino] Server started on port ");
+                    Serial.println(PORT);
                     Serial.print("[Arduino] Connect to: ");
                     Serial.print(ip);
-                    Serial.println(":" + PORT);
+                    Serial.print(":");
+                    Serial.println(PORT);
                 }
                 else
                 {
