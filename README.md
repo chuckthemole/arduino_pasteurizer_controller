@@ -19,8 +19,13 @@ This project is an Arduino-based controller for managing a pasteurization proces
 ## Setup Instructions
 
 1. Clone this repository and open it with [PlatformIO](https://platformio.org/).
-2. Create a `config.h` file in the `include/` directory (if it doesn’t exist yet).
-3. Add your Wi-Fi credentials to `config.h` like so:
+2. Create a `.env` file in the root of the project to specify which board/environment to build for. Example:
+
+   ```env
+   PIO_ENV=uno_r4_wifi
+   ```
+3. Create a `config.h` file in the `include/` directory (if it doesn’t exist yet).
+4. Add your Wi-Fi credentials to `config.h` like so:
 
    ```cpp
    // config.h
@@ -31,3 +36,4 @@ This project is an Arduino-based controller for managing a pasteurization proces
    #define WIFI_PASS "your_wifi_password"
 
    #endif
+   ```
