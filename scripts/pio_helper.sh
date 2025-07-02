@@ -14,6 +14,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Load .env if it exists
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# Default to a fallback environment if not set
+PIO_ENV=${PIO_ENV:-uno_wifi_rev2}
+
 # Function to detect Arduino port automatically
 detect_port() {
     echo -e "${BLUE}Detecting Arduino port...${NC}"
@@ -141,22 +149,25 @@ fi
 # Execute commands
 case $COMMAND in
     upload)
+        echo -e "${BLUE}Using environment: ${GREEN}$PIO_ENV${NC}"
         echo -e "${BLUE}Building and uploading...${NC}"
-        pio run --target upload
+        pio run --target upload -e "$PIO_ENV"
         ;;
     
     monitor)
         if [ -z "$PORT" ]; then
             detect_port || exit 1
         fi
+        echo -e "${BLUE}Using environment: ${GREEN}$PIO_ENV${NC}"
         echo -e "${BLUE}Starting serial monitor on $PORT at ${BAUD} baud...${NC}"
         echo -e "${YELLOW}Press Ctrl+C to exit monitor${NC}"
         pio device monitor --port "$PORT" --baud "$BAUD"
         ;;
     
     both)
+        echo -e "${BLUE}Using environment: ${GREEN}$PIO_ENV${NC}"
         echo -e "${BLUE}Building and uploading...${NC}"
-        pio run --target upload
+        pio run --target upload -e "$PIO_ENV"
         if [ $? -eq 0 ]; then
             echo -e "${GREEN}Upload successful! Starting monitor...${NC}"
             sleep 2  # Give the Arduino time to reset
@@ -172,13 +183,15 @@ case $COMMAND in
         ;;
     
     clean)
+        echo -e "${BLUE}Using environment: ${GREEN}$PIO_ENV${NC}"
         echo -e "${BLUE}Cleaning build files...${NC}"
-        pio run --target clean
+        pio run --target clean -e "$PIO_ENV"
         ;;
     
     build)
+        echo -e "${BLUE}Using environment: ${GREEN}$PIO_ENV${NC}"
         echo -e "${BLUE}Building project...${NC}"
-        pio run
+        pio run -e "$PIO_ENV"
         ;;
     
     list)
@@ -199,4 +212,4 @@ case $COMMAND in
         show_usage
         exit 1
         ;;
-    esac
+esac
